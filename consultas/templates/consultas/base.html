@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Agenda de Consultas{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">🩺 Agenda de Consultas</a>
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                {% if user.is_authenticated %}
+                    {% if vinculo_ativo %}
+                        {% if vinculo_ativo.papel == "admin" %}
+                            <a class="btn btn-sm btn-outline-light" href="{% url 'dashboard' %}">Dashboard</a>
+                            <a class="btn btn-sm btn-outline-light" href="{% url 'consulta_list' %}">Agenda</a>
+                            <a class="btn btn-sm btn-outline-light" href="{% url 'profissional_list' %}">Marcar consulta</a>
+                            <a class="btn btn-sm btn-outline-light" href="{% url 'equipe' %}">Equipe</a>
+                        {% elif vinculo_ativo.papel == "recepcao" %}
+                            <a class="btn btn-sm btn-outline-light" href="{% url 'dashboard' %}">Dashboard</a>
+                            <a class="btn btn-sm btn-outline-light" href="{% url 'consulta_list' %}">Agenda</a>
+                            <a class="btn btn-sm btn-outline-light" href="{% url 'profissional_list' %}">Marcar consulta</a>
+                        {% elif vinculo_ativo.papel == "paciente" %}
+                            <a class="btn btn-sm btn-outline-light" href="{% url 'profissional_list' %}">Marcar consulta</a>
+                        {% endif %}
+                        <span class="text-light small">
+                            {{ vinculo_ativo.clinica.nome }} · <span class="badge bg-info text-dark">{{ vinculo_ativo.get_papel_display }}</span>
+                        </span>
+                    {% endif %}
+                    <a class="btn btn-sm btn-light" href="{% url 'selecionar_clinica' %}">Trocar clínica</a>
+                    <span class="text-light small">{{ user.username }}</span>
+                    <form action="{% url 'logout' %}" method="post" class="d-inline m-0">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-light btn-sm" type="submit">Sair</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm">Entrar</a>
+                    <a href="{% url 'cadastro' %}" class="btn btn-light btn-sm">Cadastrar</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container pb-5">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
+        {% endfor %}
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,66 @@
+{% extends "consultas/base.html" %}
+{% block content %}
+<h2>Dashboard — {{ m.clinica }}</h2>
+
+<div class="row row-cols-2 row-cols-md-4 g-3 mt-1">
+    <div class="col"><div class="card text-center"><div class="card-body">
+        <div class="display-6">{{ m.consultas_hoje }}</div><div class="text-muted">Consultas hoje</div>
+    </div></div></div>
+    <div class="col"><div class="card text-center"><div class="card-body">
+        <div class="display-6">{{ m.proximos_7_dias }}</div><div class="text-muted">Próximos 7 dias</div>
+    </div></div></div>
+    <div class="col"><div class="card text-center"><div class="card-body">
+        <div class="display-6">{{ m.total_consultas }}</div><div class="text-muted">Total de consultas</div>
+    </div></div></div>
+    <div class="col"><div class="card text-center"><div class="card-body">
+        <div class="display-6">{{ m.taxa_cancelamento }}%</div><div class="text-muted">Taxa de cancelamento</div>
+    </div></div></div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <h5>Por status</h5>
+        <ul class="list-group mb-3">
+            <li class="list-group-item d-flex justify-content-between">Agendadas <span class="badge bg-warning text-dark">{{ m.por_status.agendada }}</span></li>
+            <li class="list-group-item d-flex justify-content-between">Realizadas <span class="badge bg-success">{{ m.por_status.realizada }}</span></li>
+            <li class="list-group-item d-flex justify-content-between">Canceladas <span class="badge bg-danger">{{ m.por_status.cancelada }}</span></li>
+        </ul>
+        <p class="text-muted small">{{ m.total_profissionais }} profissional(is) · {{ m.total_pacientes }} paciente(s)</p>
+    </div>
+
+    <div class="col-md-8">
+        <h5>Por profissional</h5>
+        <table class="table bg-white">
+            <thead><tr><th>Profissional</th><th>Agendadas</th><th>Realizadas</th><th>Canceladas</th></tr></thead>
+            <tbody>
+                {% for p in m.por_profissional %}
+                <tr>
+                    <td>{{ p.profissional }}</td><td>{{ p.agendadas }}</td><td>{{ p.realizadas }}</td><td>{{ p.canceladas }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-muted">Nenhum profissional cadastrado.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h5 class="mt-3">Próximas consultas</h5>
+{% if proximas %}
+<table class="table bg-white">
+    <thead><tr><th>Data</th><th>Horário</th><th>Paciente</th><th>Profissional</th></tr></thead>
+    <tbody>
+        {% for c in proximas %}
+        <tr>
+            <td>{{ c.data|date:"d/m/Y" }}</td>
+            <td>{{ c.hora_inicio|time:"H:i" }}–{{ c.hora_fim|time:"H:i" }}</td>
+            <td>{{ c.paciente }}</td>
+            <td>{{ c.profissional }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">Nenhuma consulta agendada para os próximos dias.</p>
+{% endif %}
+{% endblock %}

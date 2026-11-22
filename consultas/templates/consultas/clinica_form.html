@@ -1,0 +1,10 @@
+{% extends "consultas/base.html" %}
+{% block content %}
+<h2>Nova clínica</h2>
+<form method="post" class="mt-3">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Criar</button>
+    <a href="{% url 'selecionar_clinica' %}" class="btn btn-outline-secondary">Cancelar</a>
+</form>
+{% endblock %}

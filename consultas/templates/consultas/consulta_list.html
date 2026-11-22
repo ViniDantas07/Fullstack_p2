@@ -1,0 +1,62 @@
+{% extends "consultas/base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Agenda da clínica</h2>
+    <a href="{% url 'profissional_list' %}" class="btn btn-primary">+ Marcar consulta</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <select name="status" class="form-select">
+            <option value="">Todos os status</option>
+            {% for valor, rotulo in status_choices %}
+            <option value="{{ valor }}" {% if filtro_status == valor %}selected{% endif %}>{{ rotulo }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-4">
+        <select name="profissional" class="form-select">
+            <option value="">Todos os profissionais</option>
+            {% for p in profissionais %}
+            <option value="{{ p.pk }}" {% if filtro_profissional == p.pk|stringformat:"s" %}selected{% endif %}>{{ p }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2"><button class="btn btn-outline-secondary w-100" type="submit">Filtrar</button></div>
+</form>
+
+{% if consultas %}
+<table class="table bg-white">
+    <thead><tr><th>Data</th><th>Horário</th><th>Paciente</th><th>Profissional</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+        {% for c in consultas %}
+        <tr>
+            <td>{{ c.data|date:"d/m/Y" }}</td>
+            <td>{{ c.hora_inicio|time:"H:i" }}–{{ c.hora_fim|time:"H:i" }}</td>
+            <td>{{ c.paciente }}</td>
+            <td>{{ c.profissional }}</td>
+            <td>
+                {% if c.status == "agendada" %}<span class="badge bg-warning text-dark">Agendada</span>
+                {% elif c.status == "realizada" %}<span class="badge bg-success">Realizada</span>
+                {% else %}<span class="badge bg-danger">Cancelada</span>{% endif %}
+            </td>
+            <td>
+                {% if c.status == "agendada" %}
+                {% if vinculo_ativo.papel == "admin" %}
+                <form method="post" action="{% url 'consulta_realizar' c.pk %}" class="d-inline">
+                    {% csrf_token %}<button type="submit" class="btn btn-sm btn-outline-success">Realizada</button>
+                </form>
+                {% endif %}
+                <form method="post" action="{% url 'consulta_cancelar' c.pk %}" class="d-inline">
+                    {% csrf_token %}<button type="submit" class="btn btn-sm btn-outline-danger">Cancelar</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">Nenhuma consulta encontrada.</p>
+{% endif %}
+{% endblock %}
